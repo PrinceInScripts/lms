@@ -14,7 +14,7 @@ define('GYANSETU_SECURE', true);
 
 // Include required files
 require_once __DIR__ . '/includes/db_conn.php';
-require_once __DIR__ . '/includes/functions.php';
+// require_once __DIR__ . '/includes/functions.php';
 
 // Start session with secure settings
 if (session_status() === PHP_SESSION_NONE) {

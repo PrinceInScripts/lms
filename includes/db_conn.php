@@ -3,8 +3,12 @@
 
 $host = 'localhost';
 $dbname = 'u621399201_guru';
-$user = 'u621399201_guru';
-$pass = 'u$|R1&Tg';
+$user = 'root';
+$pass = '';
+// $host = 'localhost';
+// $dbname = 'u621399201_guru';
+// $user = 'u621399201_guru';
+// $pass = 'u$|R1&Tg';
 
 try {
     // PDO with strict error mode and prepared statements by default

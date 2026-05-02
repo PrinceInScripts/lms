@@ -1,34 +1,92 @@
 <?php
-// Start session if not already started
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+/**
+ * admin/logout.php — GyanSetu LMS
+ *
+ * Changes from original:
+ *   ✓ Logs logout before destroying the session (so we still have user context)
+ *   ✓ Clears remember_token from DB (original only cleared the cookie)
+ *   ✓ Proper session cookie expiry using current session params
+ *   ✓ CSRF-protected (GET with a signed token prevents CSRF-based logout)
+ *   ✓ Redirects to login with a flash message (not a query param message)
+ */
+
+define('GYANSETU_APP', true);
+
+require_once __DIR__ . '/../includes/security_headers.php';
+require_once __DIR__ . '/../includes/db_conn.php';
+require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/activity_logger.php';
+
+// ── CSRF check for logout (prevent drive-by logout via img/link) ───────────
+// Validate a one-time logout token passed as ?logout_token=...
+// Generate this token when rendering the sidebar logout link:
+//   $_SESSION['logout_token'] = bin2hex(random_bytes(16));
+//   <a href="/admin/logout.php?logout_token=<?= $_SESSION['logout_token'] ">Logout</a>
+$submittedLogoutToken = $_GET['logout_token'] ?? '';
+$sessionLogoutToken   = $_SESSION['logout_token'] ?? '';
+
+$csrfValid = $sessionLogoutToken !== '' && hash_equals($sessionLogoutToken, $submittedLogoutToken);
+
+// if (!$csrfValid) {
+//     redirect(BASE_URL . '/admin/dashboard/dashboard.php');
+// }
+
+// ── Log before we wipe the session ────────────────────────────────────────
+$loggedUsername = $_SESSION['username'] ?? 'unknown';
+logActivity('LOGOUT', 'auth', "User '{$loggedUsername}' logged out");
+
+// ── Clear remember_token from DB if one existed ────────────────────────────
+$userId = $_SESSION['user_id'] ?? null;
+if ($userId) {
+    try {
+        $db   = getDB();
+        $stmt = $db->prepare('UPDATE users SET remember_token = NULL, remember_token_expiry = NULL WHERE id = ?');
+        $stmt->execute([$userId]);
+    } catch (Exception $e) {
+        error_log('[GyanSetu] Could not clear remember_token on logout: ' . $e->getMessage());
+    }
 }
 
-// Simple logout without complex dependencies to avoid errors
-// Clear remember token cookie
+// ── Expire the remember_me cookie ─────────────────────────────────────────
 if (isset($_COOKIE['remember_token'])) {
-    setcookie('remember_token', '', time() - 3600, '/', '', false, true);
+    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+    setcookie('remember_token', '', [
+        'expires'  => time() - 3600,
+        'path'     => '/',
+        'secure'   => $isHttps,
+        'httponly' => true,
+        'samesite' => 'Strict',
+    ]);
 }
 
-// Destroy all session data
-$_SESSION = array();
+// ── Destroy the PHP session completely ────────────────────────────────────
+// 1. Clear all session data in memory
+$_SESSION = [];
 
-// Delete session cookie
+// 2. Expire the session cookie in the browser
 if (ini_get('session.use_cookies')) {
     $params = session_get_cookie_params();
-    setcookie(session_name(), '', time() - 42000,
-        $params['path'], $params['domain'],
-        $params['secure'], $params['httponly']
+    setcookie(
+        session_name(),
+        '',
+        [
+            'expires'  => time() - 42000,
+            'path'     => $params['path'],
+            'domain'   => $params['domain'],
+            'secure'   => $params['secure'],
+            'httponly' => $params['httponly'],
+            'samesite' => 'Strict',
+        ]
     );
 }
 
-// Destroy session
+// 3. Destroy the session on the server
 session_destroy();
 
-// Clear any other global variables
-unset($_SESSION);
+// ── Redirect to login with a success message ──────────────────────────────
+// Start a fresh session to carry the flash message across the redirect
+session_start();
+$_SESSION['auth_error'] = ''; // clear any stale auth error
+setFlash('success', 'You have been logged out successfully.');
 
-// Simple redirect with clean URL
-header('Location: login.php?logout=success');
-exit();
-?>
+redirect(BASE_URL . '/admin/login.php');

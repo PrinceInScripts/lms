@@ -1,37 +1,14 @@
-# Enable URL rewriting
 RewriteEngine On
 
-# Hide PHP extensions
-RewriteCond %{REQUEST_FILENAME} !-d
+# Make sure rewrite works inside subfolder
+RewriteBase /lms/
+
+# Only rewrite if file or folder doesn't exist
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^([^\.]+)$ $1.php [NC,L]
+RewriteCond %{REQUEST_FILENAME} !-d
 
-# Force HTTPS (uncomment if SSL is available)
-# RewriteCond %{HTTPS} off
-# RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+# Remove .php from URL
+RewriteRule ^(.+)$ $1.php [L]
 
-# Prevent directory listing
+# Disable directory listing
 Options -Indexes
-
-# Protect sensitive files
-<FilesMatch "^\.">
-    Order allow,deny
-    Deny from all
-</FilesMatch>
-
-<FilesMatch "(config|database|db_conn|\.sql|\.log|\.ini)">
-    Order allow,deny
-    Deny from all
-</FilesMatch>
-
-# Security headers
-Header set X-Frame-Options "DENY"
-Header set X-Content-Type-Options "nosniff"
-Header set X-XSS-Protection "1; mode=block"
-Header set Referrer-Policy "strict-origin-when-cross-origin"
-
-# Compress files
-AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript
-
-# Set default charset
-AddDefaultCharset UTF-8
