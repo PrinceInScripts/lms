@@ -16,7 +16,8 @@ if (!defined('GYANSETU_APP')) {
     exit('Direct access not permitted.');
 }
 
-define('BASE_URL', '/Project/lms');
+// define('BASE_URL', '/Project/lms');
+define('BASE_URL', 'http://localhost/Project/lms');
 // ── 1. Input Sanitization ──────────────────────────────────────────────────
 
 /**

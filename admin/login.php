@@ -1,18 +1,4 @@
 <?php
-/**
- * admin/login.php — GyanSetu LMS
- *
- * Changes from original:
- *   ✓ Removed error_reporting / display_errors (debug code)
- *   ✓ Removed inline DB credentials — uses shared db_conn.php
- *   ✓ Removed console.log() debug output
- *   ✓ Removed plain-text default credentials from UI
- *   ✓ Added session_regenerate_id(true) on successful login
- *   ✓ CSRF token regenerated after each form submission (via verifyCSRFToken)
- *   ✓ Login success & failure logged via logActivity()
- *   ✓ Auth error messages from session flash shown on page load
- *   ✓ Rate-limiting comment — add Redis/DB throttle for production
- */
 
 define('GYANSETU_APP', true);
 

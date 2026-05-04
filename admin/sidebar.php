@@ -119,6 +119,7 @@ $sidebar_collapsed = isset($_COOKIE['sidebar_collapsed']) && $_COOKIE['sidebar_c
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
     <style>
+        
         .sidebar {
             width: 280px;
             background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
@@ -170,35 +171,63 @@ $sidebar_collapsed = isset($_COOKIE['sidebar_collapsed']) && $_COOKIE['sidebar_c
             border-radius: 10px;
         }
         
-        .menu-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 20px;
-            color: #a0a0a0;
-            transition: all 0.3s ease;
-            border-radius: 12px;
-            margin: 4px 12px;
-            cursor: pointer;
-            position: relative;
-        }
-        
-        .menu-item:hover {
-            background: rgba(232, 127, 36, 0.1);
-            color: #E87F24;
-            transform: translateX(5px);
-        }
-        
-        .menu-item.active {
-            background: linear-gradient(135deg, #E87F24, #FFC81E);
-            color: white;
-            box-shadow: 0 5px 15px rgba(232, 127, 36, 0.3);
-        }
-        
-        .menu-item i {
-            font-size: 20px;
-            min-width: 24px;
-        }
+       .menu-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 18px;
+    margin: 6px 10px;
+    border-radius: 14px;
+    color: #9ca3af;
+    font-weight: 500;
+    transition: all 0.25s ease;
+    position: relative;
+}
+
+/* Hover */
+.menu-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+    transform: translateX(6px);
+}
+
+/* Active */
+.menu-item.active {
+    background: linear-gradient(135deg, #E87F24, #FFC81E);
+    color: white;
+    box-shadow: 0 8px 20px rgba(232, 127, 36, 0.35);
+}
+
+/* Icon glow on active */
+.menu-item.active i {
+    transform: scale(1.1);
+}
+
+/* Smooth icon */
+.menu-item i {
+    font-size: 20px;
+    transition: all 0.3s ease;
+}
+
+/* Hover icon effect */
+.menu-item:hover i {
+    transform: scale(1.15);
+}
+
+.menu-item::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    height: 0%;
+    width: 4px;
+    background: linear-gradient(#E87F24, #FFC81E);
+    border-radius: 4px;
+    transition: height 0.3s ease;
+}
+
+.menu-item.active::before {
+    height: 70%;
+}
         
         .submenu {
             margin-left: 56px;
@@ -295,6 +324,37 @@ $sidebar_collapsed = isset($_COOKIE['sidebar_collapsed']) && $_COOKIE['sidebar_c
                 display: block;
             }
         }
+
+        .sidebar.collapsed .menu-item {
+    position: relative;
+}
+
+.sidebar.collapsed .menu-item:hover::after {
+    content: attr(data-name);
+    position: absolute;
+    left: 90px;
+    background: #111827;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.main-content {
+    margin-left: 280px;
+    transition: margin-left 0.3s ease, padding 0.3s ease;
+}
+
+.main-content.expanded {
+    margin-left: 80px !important;
+}
+
+/* Fix content spacing */
+.main-content > div {
+    max-width: 1400px;
+    margin: 0 auto;
+}
     </style>
 </head>
 <body>
@@ -338,7 +398,7 @@ $sidebar_collapsed = isset($_COOKIE['sidebar_collapsed']) && $_COOKIE['sidebar_c
                         <?php endforeach; ?>
                     </div>
                 <?php else: ?>
-                    <a href="<?php echo $item['link']; ?>" class="menu-item <?php echo (strpos($item['link'], $current_dir) !== false || $current_page == basename($item['link'])) ? 'active' : ''; ?>">
+                    <a href="<?php echo $item['link']; ?>" data-name="<?php echo $item['name']; ?>" class="menu-item <?php echo (strpos($item['link'], $current_dir) !== false || $current_page == basename($item['link'])) ? 'active' : ''; ?>">
                         <i class="<?php echo $item['icon']; ?>"></i>
                         <span class="menu-text"><?php echo $item['name']; ?></span>
                     </a>
@@ -423,10 +483,13 @@ $sidebar_collapsed = isset($_COOKIE['sidebar_collapsed']) && $_COOKIE['sidebar_c
                     const toggleBtn = document.getElementById('toggleSidebar');
                     const sidebar = document.getElementById('sidebar');
                     const mainContent = document.getElementById('mainContent');
+                    const contentWrapper = mainContent.getElementById('content-wrapper');
                     
                     toggleBtn.addEventListener('click', function() {
                         sidebar.classList.toggle('collapsed');
                         mainContent.classList.toggle('expanded');
+                        contentWrapper.classList.toggle('expanded');
+                        
                         document.cookie = `sidebar_collapsed=${sidebar.classList.contains('collapsed')};path=/;max-age=${30*24*60*60}`;
                     });
                     

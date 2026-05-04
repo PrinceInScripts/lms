@@ -1,16 +1,20 @@
 <?php
 // Error reporting for debugging (remove in production)
+
+define('GYANSETU_APP', true);
+require_once __DIR__ . '/../../includes/security_headers.php';
+require_once __DIR__ . '/../../includes/functions.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 // Start session
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+// if (session_status() === PHP_SESSION_NONE) {
+//     session_start();
+// }
 
 // Check login
 if (!isset($_SESSION['user_id'])) {
-    header('Location: ../login.php');
+    redirect(BASE_URL . '/admin/login.php');
     exit();
 }
 
@@ -278,6 +282,25 @@ $attendance_percentage = $stats['total_students'] > 0 ? round(($stats['today_att
                 margin-bottom: 20px;
             }
         }
+.content-wrapper {
+    margin-left: 280px;
+    transition: margin-left 0.3s ease, padding 0.3s ease;
+}
+
+.content-wrapper.expanded {
+    margin-left: 80px !important;
+}
+
+.main-content > div {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.content-wrapper {
+    width: 100%;
+}
+
+
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-gray-100">
@@ -285,7 +308,7 @@ $attendance_percentage = $stats['total_students'] > 0 ? round(($stats['today_att
     <?php include '../sidebar.php'; ?>
     
     <!-- Main Content -->
-    <div class="p-4 md:p-6 lg:p-8 animate-fadeInUp">
+   <div class="content-wrapper p-4 md:p-6 lg:p-8 animate-fadeInUp">
         <!-- Welcome Section -->
         <div class="mb-8 bg-gradient-to-r from-[#E87F24]/10 to-[#FFC81E]/10 rounded-2xl p-6 backdrop-blur-sm">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
