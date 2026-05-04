@@ -155,18 +155,12 @@ $streams   = ["Let's Win", "Super 30", "Other"];
 $statuses  = ['active' => 'Active', 'on_hold' => 'On Hold', 'dropped' => 'Dropped', 'transferred' => 'Transferred', 'completed' => 'Completed'];
 $genders   = ['Male', 'Female', 'Other'];
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Student — GyanSetu</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * { font-family: 'Inter', sans-serif; }
-        body { background: #FEFDDF; }
+<?php
+$page_title = 'Edit Student — GyanSetu';
+include __DIR__ . '/../sidebar.php';
+?>
+<style>
+* { font-family: 'Inter', sans-serif; }
         input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: #E87F24 !important;
@@ -177,12 +171,8 @@ $genders   = ['Male', 'Female', 'Other'];
         .btn-primary { background: linear-gradient(135deg,#E87F24,#FFC81E); }
         .btn-primary:hover { opacity:.9; transform:translateY(-1px); }
         .form-input { @apply w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm transition; }
-    </style>
-</head>
-<body class="flex">
-    <?php include __DIR__ . '/../sidebar.php'; ?>
-
-    <main class="flex-1 p-6 md:p-8 ml-0 md:ml-64 min-h-screen">
+</style>
+    <div>
 
         <!-- Header -->
         <div class="flex items-center gap-4 mb-8">
@@ -400,7 +390,9 @@ $genders   = ['Male', 'Female', 'Other'];
                 </div>
             </div>
         </form>
-    </main>
+        </div><!-- /.page content -->
+    </div><!-- /.content-area (sidebar) -->
+</div><!-- /.page-wrapper (sidebar) -->
 
     <script>
         function togglePw() {

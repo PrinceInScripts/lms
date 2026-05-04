@@ -54,26 +54,16 @@ function infoRow(string $label, ?string $value, string $icon = 'ri-information-l
     HTML;
 }
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= sanitize($s['full_name']) ?> — GyanSetu</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * { font-family: 'Inter', sans-serif; }
-        body { background: #FEFDDF; }
+<?php
+$page_title = 'View Student — GyanSetu';
+include __DIR__ . '/../sidebar.php';
+?>
+<style>
+* { font-family: 'Inter', sans-serif; }
         .card { background: white; border-radius: 20px; box-shadow: 0 2px 16px rgba(0,0,0,.06); }
         .section-title { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: #E87F24; margin-bottom: 1rem; }
-    </style>
-</head>
-<body class="flex">
-    <?php include __DIR__ . '/../sidebar.php'; ?>
-
-    <main class="flex-1 p-6 md:p-8 ml-0 md:ml-64 min-h-screen">
+</style>
+    <div>
 
         <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -216,7 +206,9 @@ function infoRow(string $label, ?string $value, string $icon = 'ri-information-l
 
             </div>
         </div>
-    </main>
+        </div><!-- /.page content -->
+    </div><!-- /.content-area (sidebar) -->
+</div><!-- /.page-wrapper (sidebar) -->
 
     <!-- Delete Modal -->
     <div id="deleteModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">

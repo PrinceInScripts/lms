@@ -132,51 +132,20 @@ $todayDate   = date('Y-m-d');
 $streams     = ["Let's Win", "Super 30", "Other"];
 $statuses    = ['active' => 'Active', 'on_hold' => 'On Hold', 'dropped' => 'Dropped'];
 $genders     = ['Male', 'Female', 'Other'];
-?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Student — GyanSetu</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * { font-family: 'Inter', sans-serif; }
-        body { background: #FEFDDF; }
-        .form-label { @apply block text-sm font-semibold text-gray-700 mb-1.5; }
-        input, select, textarea {
-            transition: border-color .2s, box-shadow .2s;
-        }
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: #E87F24 !important;
-            box-shadow: 0 0 0 3px rgba(232,127,36,.12);
-        }
-        .section-card {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 2px 16px rgba(0,0,0,.06);
-        }
-        .section-title {
-            font-size: .75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .08em;
-            color: #E87F24;
-            border-bottom: 2px solid #FFF3E0;
-            padding-bottom: .75rem;
-            margin-bottom: 1.25rem;
-        }
-        .btn-primary { background: linear-gradient(135deg,#E87F24,#FFC81E); }
-        .btn-primary:hover { opacity:.9; transform:translateY(-1px); }
-    </style>
-</head>
-<body class="flex">
-    <?php include __DIR__ . '/../sidebar.php'; ?>
 
-    <main class="flex-1 p-6 md:p-8 ml-0 md:ml-64 min-h-screen">
+$page_title = 'Add Student — GyanSetu';
+include __DIR__ . '/../sidebar.php';
+?>
+<style>
+.form-label { display:block; font-size:.875rem; font-weight:600; color:#374151; margin-bottom:.375rem; }
+input, select, textarea { transition: border-color .2s, box-shadow .2s; }
+input:focus, select:focus, textarea:focus { outline:none; border-color:#E87F24!important; box-shadow:0 0 0 3px rgba(232,127,36,.12); }
+.section-card { background:#fff; border-radius:20px; box-shadow:0 2px 16px rgba(0,0,0,.06); }
+.section-title { font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#E87F24; border-bottom:2px solid #FFF3E0; padding-bottom:.75rem; margin-bottom:1.25rem; }
+.btn-primary { background:linear-gradient(135deg,#E87F24,#FFC81E); }
+.btn-primary:hover { opacity:.9; transform:translateY(-1px); }
+</style>
+    <div>
 
         <!-- Header -->
         <div class="flex items-center gap-4 mb-8">
@@ -397,7 +366,9 @@ $genders     = ['Male', 'Female', 'Other'];
                 </div>
             </div>
         </form>
-    </main>
+    </div><!-- /.page content -->
+    </div><!-- /.content-area (sidebar) -->
+</div><!-- /.page-wrapper (sidebar) -->
 
     <script>
         function togglePw() {

@@ -58,30 +58,11 @@ function statusBadge(string $status): string {
             </span>";
 }
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Students — GyanSetu</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * { font-family: 'Inter', sans-serif; }
-        body { background: #FEFDDF; }
-        .btn-primary { background: linear-gradient(135deg,#E87F24,#FFC81E); }
-        .btn-primary:hover { opacity: .9; transform: translateY(-1px); }
-        tr:hover td { background: #fff8f0; }
-        .action-btn { transition: all .2s; }
-        .action-btn:hover { transform: scale(1.15); }
-        .table-wrap { border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,.07); }
-    </style>
-</head>
-<body class="flex">
-    <?php include __DIR__ . '/../sidebar.php'; ?>
-
-    <main class="flex-1 p-6 md:p-8 ml-0 md:ml-64 min-h-screen">
+<?php
+$page_title = 'Students — GyanSetu';
+include __DIR__ . '/../sidebar.php';
+?>
+    <div>
 
         <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -219,7 +200,9 @@ function statusBadge(string $status): string {
             <?php endif; ?>
         </div>
 
-    </main>
+    </div><!-- /.page content -->
+    </div><!-- /.content-area (sidebar) -->
+</div><!-- /.page-wrapper (sidebar) -->
 
     <!-- Delete Modal -->
     <div id="deleteModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
