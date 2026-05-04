@@ -138,7 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute([$userId]);
                 $student = $stmt->fetch();
 
-                setFlash('success', "Student <strong>{$fullName}</strong> updated successfully.");
+                setFlash('success', "Student {$fullName} updated successfully.");
                 redirect('/admin/student/edit_student.php?id=' . $userId);
 
             } catch (Exception $e) {

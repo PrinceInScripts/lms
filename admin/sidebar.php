@@ -15,6 +15,8 @@ $menu_items = [
     'submenu'=>[ [ 'name'=>'All Batches', 'link'=>'../batch/batches.php' ], [ 'name'=>'Add Batch', 'link'=>'../batch/add_batch.php' ] ] ],
     'students'  => [ 'name'=>'Students', 'icon'=>'ri-user-star-line', 'link'=>'../students/students.php',
     'submenu'=>[ [ 'name'=>'All Students', 'link'=>'../students/students.php' ], [ 'name'=>'Add Student', 'link'=>'../student/add_student.php' ] ] ],
+    'courses'     => [ 'name'=>'Courses',     'icon'=>'ri-book-open-line',    'link'=>'../course/courses.php',
+    'submenu'=>[ [ 'name'=>'All Courses', 'link'=>'../course/courses.php' ], [ 'name'=>'Add Course', 'link'=>'../course/add_course.php' ], [ 'name'=>'Batch Courses', 'link'=>'../batch/course/batch_courses.php' ], [ 'name'=>'Assign Course', 'link'=>'../batch/course/assign_course.php' ] ] ],
     'schedule'    => [ 'name'=>'Schedule',    'icon'=>'ri-calendar-line',     'link'=>'../schedule/schedule.php' ],
     'attendance'  => [ 'name'=>'Attendance',  'icon'=>'ri-checkbox-line',     'link'=>'../attendance/attendance.php' ],
     'notes'       => [ 'name'=>'Notes',       'icon'=>'ri-file-text-line',    'link'=>'../notes/notes.php' ],

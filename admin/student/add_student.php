@@ -115,8 +115,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 logActivity('ADD_STUDENT', 'students',
                     "Added student '{$fullName}' (ID: {$studentId}, email: {$email})");
 
-                setFlash('success', "Student <strong>{$fullName}</strong> added successfully with ID <strong>{$studentId}</strong>.");
-                redirect('/admin/students/students.php');
+                setFlash('success', "Student {$fullName} added successfully with ID {$studentId}.");
+                redirect(BASE_URL . '/admin/students/students.php');
 
             } catch (Exception $e) {
                 $db->rollBack();

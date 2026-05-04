@@ -75,7 +75,7 @@ try {
         "Soft-deleted student '{$student['full_name']}' (ID: {$student['student_id']}, user_id: {$userId})"
     );
 
-    setFlash('success', "Student <strong>{$student['full_name']}</strong> has been removed.");
+    setFlash('success', "Student {$student['full_name']} has been removed.");
 
 } catch (Exception $e) {
     if ($db->inTransaction()) {
