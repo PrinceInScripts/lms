@@ -294,7 +294,7 @@ include '../sidebar.php';
                     </div>
                 </div>
                 <div class="flex gap-3">
-                    <button onclick="window.location.href='../schedule/add_schedule.php'" class="px-5 py-2.5 bg-gradient-to-r from-[#E87F24] to-[#FFC81E] text-white rounded-xl font-medium hover:shadow-lg transition-all transform hover:scale-105 flex items-center gap-2">
+                    <button onclick="window.location.href='<?= BASE_URL ?>/admin/schedule/add_schedule.php'" class="px-5 py-2.5 bg-gradient-to-r from-[#E87F24] to-[#FFC81E] text-white rounded-xl font-medium hover:shadow-lg transition-all transform hover:scale-105 flex items-center gap-2">
                         <i class="ri-add-line"></i>
                         <span>Add Schedule</span>
                     </button>
@@ -399,7 +399,7 @@ include '../sidebar.php';
             </div>
             
             <!-- Today's Attendance -->
-            <div class="stat-card bg-white rounded-2xl p-6 cursor-pointer shadow-sm" onclick="window.location.href='../attendance/attendance.php'">
+            <div class="stat-card bg-white rounded-2xl p-6 cursor-pointer shadow-sm" onclick="window.location.href='<?= BASE_URL ?>/admin/attendance/attendance.php'">
                 <div class="flex items-center justify-between mb-4">
                     <div class="stat-icon w-14 h-14 rounded-xl bg-gradient-to-br from-green-100 to-green-50 flex items-center justify-center">
                         <i class="ri-checkbox-circle-line text-2xl text-green-500"></i>
@@ -530,48 +530,98 @@ include '../sidebar.php';
                 </div>
             </div>
             
-            <!-- Upcoming Schedule -->
+            <!-- Upcoming Schedule (improved: absolute URLs, today/tomorrow labels, attendance quick-link) -->
             <div class="dashboard-card bg-white rounded-2xl p-6 shadow-sm lg:col-span-1">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
                         <i class="ri-calendar-line text-[#FFC81E]"></i>
                         Upcoming Schedule
                     </h3>
-                    <a href="../schedule/schedule.php" class="text-sm text-[#E87F24] hover:underline flex items-center gap-1">
+                    <a href="<?= BASE_URL ?>/admin/schedule/schedule.php"
+                       class="text-sm text-[#E87F24] hover:underline flex items-center gap-1">
                         View All <i class="ri-arrow-right-line"></i>
                     </a>
                 </div>
-                <div class="space-y-3 max-h-96 overflow-y-auto">
-                    <?php if (empty($upcoming_schedules)): ?>
+                <div class="space-y-2 max-h-96 overflow-y-auto">
+                    <?php
+                    $__today    = date('Y-m-d');
+                    $__tomorrow = date('Y-m-d', strtotime('+1 day'));
+                    if (empty($upcoming_schedules)): ?>
                         <div class="text-center py-8 text-gray-500">
-                            <i class="ri-calendar-line text-4xl mb-2 block"></i>
-                            <p>No upcoming schedules</p>
-                            <a href="../schedule/add_schedule.php" class="text-sm text-[#E87F24] hover:underline mt-2 inline-block">Create Schedule →</a>
+                            <i class="ri-calendar-check-line text-4xl mb-2 block text-[#E87F24] opacity-40"></i>
+                            <p class="text-sm font-medium">No upcoming sessions</p>
+                            <a href="<?= BASE_URL ?>/admin/schedule/add_schedule.php"
+                               class="text-sm text-[#E87F24] hover:underline mt-2 inline-block font-semibold">
+                                + Add Schedule
+                            </a>
                         </div>
                     <?php else: ?>
-                        <?php foreach ($upcoming_schedules as $schedule): ?>
-                            <div class="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 transition cursor-pointer" onclick="window.location.href='../schedule/view_schedule.php?id=<?php echo $schedule['id']; ?>'">
-                                <div class="flex-shrink-0 text-center min-w-[60px]">
-                                    <div class="bg-gradient-to-br from-[#E87F24] to-[#FFC81E] text-white rounded-xl p-2">
-                                        <div class="text-xl font-bold"><?php echo date('d', strtotime($schedule['schedule_date'])); ?></div>
-                                        <div class="text-xs"><?php echo date('M', strtotime($schedule['schedule_date'])); ?></div>
-                                    </div>
-                                </div>
-                                <div class="flex-1">
-                                    <h4 class="font-semibold text-gray-800"><?php echo htmlspecialchars($schedule['topic']); ?></h4>
-                                    <p class="text-sm text-gray-600"><?php echo htmlspecialchars($schedule['batch_name']); ?></p>
-                                    <div class="flex items-center gap-3 mt-2">
-                                        <span class="text-xs text-gray-500 flex items-center gap-1">
-                                            <i class="ri-time-line"></i> <?php echo date('h:i A', strtotime($schedule['start_time'])); ?>
-                                        </span>
-                                        <span class="text-xs text-gray-500 flex items-center gap-1">
-                                            <i class="ri-map-pin-line"></i> Online
-                                        </span>
-                                    </div>
-                                </div>
-                                <i class="ri-arrow-right-s-line text-gray-400 text-xl"></i>
+                        <?php foreach ($upcoming_schedules as $schedule):
+                            $__isToday    = $schedule['schedule_date'] === $__today;
+                            $__isTomorrow = $schedule['schedule_date'] === $__tomorrow;
+                            $__dateLabel  = $__isToday ? 'Today' : ($__isTomorrow ? 'Tomorrow' : date('d M', strtotime($schedule['schedule_date'])));
+                            $__labelCls   = $__isToday
+                                ? 'bg-green-100 text-green-700'
+                                : ($__isTomorrow ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-50 text-blue-600');
+                            $__dotCls     = $__isToday ? 'bg-green-500' : ($__isTomorrow ? 'bg-yellow-400' : 'bg-blue-400');
+                        ?>
+                        <div class="flex items-start gap-3 p-3 rounded-xl hover:bg-orange-50/50 transition-colors group">
+                            <!-- Date -->
+                            <div class="flex-shrink-0 text-center w-10">
+                                <p class="text-lg font-extrabold text-gray-800 leading-none">
+                                    <?php echo date('d', strtotime($schedule['schedule_date'])); ?>
+                                </p>
+                                <p class="text-xs font-semibold text-gray-400 uppercase">
+                                    <?php echo date('M', strtotime($schedule['schedule_date'])); ?>
+                                </p>
                             </div>
+                            <!-- Dot -->
+                            <div class="flex flex-col items-center mt-1.5 flex-shrink-0">
+                                <span class="w-2 h-2 rounded-full <?= $__dotCls ?>"></span>
+                                <span class="w-px flex-1 bg-gray-100 mt-1" style="min-height:24px"></span>
+                            </div>
+                            <!-- Info -->
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <p class="text-sm font-semibold text-gray-800 truncate">
+                                        <?php echo htmlspecialchars($schedule['topic']); ?>
+                                    </p>
+                                    <span class="text-xs font-bold px-2 py-0.5 rounded-full <?= $__labelCls ?> flex-shrink-0">
+                                        <?= $__dateLabel ?>
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-3 mt-0.5">
+                                    <span class="text-xs text-gray-400 flex items-center gap-1">
+                                        <i class="ri-group-line"></i>
+                                        <?php echo htmlspecialchars($schedule['batch_name']); ?>
+                                    </span>
+                                    <span class="text-xs text-gray-400 flex items-center gap-1">
+                                        <i class="ri-time-line"></i>
+                                        <?php echo date('h:i A', strtotime($schedule['start_time'])); ?>
+                                    </span>
+                                </div>
+                            </div>
+                            <!-- Quick actions (visible on hover) -->
+                            <div class="flex items-center gap-1.5 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <a href="<?= BASE_URL ?>/admin/attendance/attendance.php?schedule_id=<?php echo $schedule['id']; ?>&batch_id=<?php echo urlencode($schedule['batch_id']); ?>&date=<?php echo $schedule['schedule_date']; ?>"
+                                   title="Mark Attendance"
+                                   class="w-6 h-6 rounded-lg bg-green-100 flex items-center justify-center text-green-600 hover:bg-green-200 transition">
+                                    <i class="ri-checkbox-circle-line text-xs"></i>
+                                </a>
+                                <a href="<?= BASE_URL ?>/admin/schedule/edit_schedule.php?id=<?php echo $schedule['id']; ?>"
+                                   title="Edit"
+                                   class="w-6 h-6 rounded-lg bg-orange-100 flex items-center justify-center text-[#E87F24] hover:bg-orange-200 transition">
+                                    <i class="ri-edit-line text-xs"></i>
+                                </a>
+                            </div>
+                        </div>
                         <?php endforeach; ?>
+                        <div class="pt-2 border-t border-gray-100">
+                            <a href="<?= BASE_URL ?>/admin/schedule/add_schedule.php"
+                               class="text-xs font-semibold text-[#E87F24] hover:underline flex items-center gap-1">
+                                <i class="ri-add-circle-line"></i> Add New Schedule
+                            </a>
+                        </div>
                     <?php endif; ?>
                 </div>
             </div>
