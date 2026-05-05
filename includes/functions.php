@@ -258,3 +258,143 @@ function getString(array $source, string $key, string $default = ''): string
 {
     return isset($source[$key]) ? sanitize($source[$key]) : $default;
 }
+
+// ── 6. Dashboard Helpers ──────────────────────────────────────────────────
+
+/**
+ * Get all dashboard stats in a single efficient query.
+ * Returns keyed array: total_students, active_batches, total_courses, today_attendance
+ */
+function getDashboardStats(): array
+{
+    $defaults = [
+        'total_students'   => 0,
+        'active_batches'   => 0,
+        'total_courses'    => 0,
+        'today_attendance' => 0,
+    ];
+    try {
+        $db  = getDB();
+        $row = $db->query("
+            SELECT
+                (SELECT COUNT(*) FROM student_details  WHERE current_status = 'active')               AS total_students,
+                (SELECT COUNT(*) FROM batches          WHERE status IN ('upcoming','ongoing'))         AS active_batches,
+                (SELECT COUNT(*) FROM courses          WHERE status = 'active')                       AS total_courses,
+                (SELECT COUNT(DISTINCT student_id) FROM attendance WHERE attendance_date = CURDATE()) AS today_attendance
+        ")->fetch();
+        if ($row) {
+            return array_map('intval', $row) + $defaults;
+        }
+    } catch (Exception $e) {
+        error_log('[GyanSetu] getDashboardStats: ' . $e->getMessage());
+    }
+    return $defaults;
+}
+
+/**
+ * Render a consistent page-level error message box.
+ */
+function renderError(string $message): void
+{
+    $safe = htmlspecialchars($message, ENT_QUOTES, 'UTF-8');
+    echo <<<HTML
+    <div class="flex items-center gap-3 rounded-xl border-l-4 border-red-400 bg-red-50 p-4 text-sm font-medium text-red-800 mb-4">
+        <i class="ri-error-warning-line text-lg flex-shrink-0"></i>
+        <span>{$safe}</span>
+    </div>
+    HTML;
+}
+
+/**
+ * Render a consistent page-level success message box.
+ */
+function renderSuccess(string $message): void
+{
+    $safe = htmlspecialchars($message, ENT_QUOTES, 'UTF-8');
+    echo <<<HTML
+    <div class="flex items-center gap-3 rounded-xl border-l-4 border-green-400 bg-green-50 p-4 text-sm font-medium text-green-800 mb-4">
+        <i class="ri-checkbox-circle-line text-lg flex-shrink-0"></i>
+        <span>{$safe}</span>
+    </div>
+    HTML;
+}
+
+// ── 7. Access Control Helpers ─────────────────────────────────────────────
+
+/**
+ * Check if the current user can perform an action on a feature.
+ * super_admin always returns true. Falls back to true if table missing.
+ *
+ * @param string $feature    e.g. 'students', 'batches', 'attendance'
+ * @param string $permission 'can_view' | 'can_create' | 'can_edit' | 'can_delete'
+ */
+function canDo(string $feature, string $permission = 'can_view'): bool
+{
+    // Super admin has unrestricted access
+    if (($_SESSION['role'] ?? '') === 'super_admin') {
+        return true;
+    }
+
+    $allowed = ['can_view', 'can_create', 'can_edit', 'can_delete'];
+    if (!in_array($permission, $allowed, true)) {
+        return false;
+    }
+
+    try {
+        $db   = getDB();
+        $stmt = $db->prepare(
+            "SELECT {$permission} FROM user_access_settings WHERE user_id = ? AND feature = ? LIMIT 1"
+        );
+        $stmt->execute([$_SESSION['user_id'] ?? 0, $feature]);
+        $row = $stmt->fetch();
+        return $row && (bool) $row[$permission];
+    } catch (Exception $e) {
+        // Table may not exist or column missing — fail open for now
+        error_log('[GyanSetu] canDo error: ' . $e->getMessage());
+        return true;
+    }
+}
+
+/**
+ * Abort with 403 if the current user lacks the required permission.
+ * Use at the top of action scripts.
+ */
+function requirePermission(string $feature, string $permission = 'can_view'): void
+{
+    if (!canDo($feature, $permission)) {
+        http_response_code(403);
+        setFlash('error', 'You do not have permission to perform this action.');
+        redirectBack();
+    }
+}
+
+// ── 8. Table Rendering Helper ─────────────────────────────────────────────
+
+/**
+ * Render a consistent empty-state block for tables/lists.
+ *
+ * @param string $icon    Remix icon class, e.g. 'ri-inbox-line'
+ * @param string $message Human-readable empty message
+ * @param string $actionUrl   Optional URL for a CTA button
+ * @param string $actionLabel CTA button label
+ */
+function renderEmptyState(
+    string $icon        = 'ri-inbox-line',
+    string $message     = 'No records found.',
+    string $actionUrl   = '',
+    string $actionLabel = 'Add New'
+): void {
+    $safeIcon    = htmlspecialchars($icon, ENT_QUOTES, 'UTF-8');
+    $safeMessage = htmlspecialchars($message, ENT_QUOTES, 'UTF-8');
+    echo "<div class=\"flex flex-col items-center justify-center py-14 text-gray-400\">";
+    echo "  <i class=\"{$safeIcon} mb-3 text-5xl opacity-40\"></i>";
+    echo "  <p class=\"text-sm\">{$safeMessage}</p>";
+    if ($actionUrl) {
+        $safeUrl   = htmlspecialchars($actionUrl, ENT_QUOTES, 'UTF-8');
+        $safeLabel = htmlspecialchars($actionLabel, ENT_QUOTES, 'UTF-8');
+        echo "  <a href=\"{$safeUrl}\" class=\"mt-3 inline-flex items-center gap-1 rounded-lg bg-[#E87F24] px-4 py-2 text-sm font-semibold text-white hover:bg-[#d06d18] transition\">";
+        echo "    <i class=\"ri-add-line\"></i> {$safeLabel}";
+        echo "  </a>";
+    }
+    echo "</div>";
+}

@@ -38,13 +38,11 @@ if (isPost()) {
             $b->execute([$batchId]);
             $batch = $b->fetch();
 
-            print_r($batch); // Debug log
 
             $c = $db->prepare("SELECT course_code, course_name FROM courses WHERE id = ?");
             $c->execute([$courseId]);
             $course = $c->fetch();
 
-              print_r($course); // Debug log
 
             if (!$batch || !$course) {
                 $errors[] = 'Invalid batch or course selected.';

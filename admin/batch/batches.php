@@ -28,11 +28,6 @@ if (in_array($filter, ['upcoming','ongoing','completed','cancelled'])) {
     $params[] = $filter;
 }
 
-$total = (int) $db->prepare("SELECT COUNT(*) FROM batches b WHERE $where")
-    ->execute($params) ? $db->prepare("SELECT COUNT(*) FROM batches b WHERE $where")
-    ->execute($params) : 0;
-
-// Re-run properly
 $cntStmt = $db->prepare("SELECT COUNT(*) FROM batches b WHERE $where");
 $cntStmt->execute($params);
 $total      = (int) $cntStmt->fetchColumn();
