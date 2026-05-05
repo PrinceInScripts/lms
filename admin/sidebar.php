@@ -2,8 +2,7 @@
 /**
  * sidebar.php — GyanSetu LMS
  * ROUTING FIX: All links use BASE_URL (absolute paths).
- * Relative paths like ../batch/batches.php break when pages are nested
- * at different depths. Absolute paths work from every location.
+ * ACCESS CONTROL: Menu items are shown only if user has view permission.
  */
 
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
@@ -11,6 +10,8 @@ if (!isset($_SESSION['user_id'])) {
     header('Location: ' . (defined('BASE_URL') ? BASE_URL : '') . '/admin/login.php');
     exit();
 }
+
+require_once __DIR__ . '/../includes/access_settings.php'; // for canView()
 
 $B = defined('BASE_URL') ? rtrim(BASE_URL, '/') : '';
 
@@ -35,52 +36,147 @@ function sidebarGroupActive(array $submenu): bool {
     return false;
 }
 
-$menu_items = [
-    'dashboard'   => ['name'=>'Dashboard',     'icon'=>'ri-dashboard-line',    'link'=>"$B/admin/dashboard/dashboard.php"],
-    'batches'     => ['name'=>'Batches',        'icon'=>'ri-group-line',        'link'=>"$B/admin/batch/batches.php",
+// Build menu items dynamically with permission checks
+$menu_items = [];
+
+// Dashboard (always shown)
+$menu_items['dashboard'] = ['name'=>'Dashboard', 'icon'=>'ri-dashboard-line', 'link'=>"$B/admin/dashboard/dashboard.php"];
+
+// Batches
+if (canView('batches')) {
+    $menu_items['batches'] = [
+        'name'=>'Batches', 'icon'=>'ri-group-line', 'link'=>"$B/admin/batch/batches.php",
         'submenu'=>[
-            ['name'=>'All Batches',    'link'=>"$B/admin/batch/batches.php"],
-            ['name'=>'Add Batch',      'link'=>"$B/admin/batch/add_batch.php"],
+            ['name'=>'All Batches', 'link'=>"$B/admin/batch/batches.php"],
+            ['name'=>'Add Batch',   'link'=>"$B/admin/batch/add_batch.php"],
             ['name'=>'Assign Student', 'link'=>"$B/admin/batch/assign_student.php"],
-        ]],
-    'students'    => ['name'=>'Students',       'icon'=>'ri-user-star-line',    'link'=>"$B/admin/students/students.php",
+        ]
+    ];
+}
+
+// Students
+if (canView('students')) {
+    $menu_items['students'] = [
+        'name'=>'Students', 'icon'=>'ri-user-star-line', 'link'=>"$B/admin/students/students.php",
         'submenu'=>[
             ['name'=>'All Students', 'link'=>"$B/admin/students/students.php"],
             ['name'=>'Add Student',  'link'=>"$B/admin/student/add_student.php"],
-        ]],
-    'courses'     => ['name'=>'Courses',        'icon'=>'ri-book-open-line',    'link'=>"$B/admin/course/courses.php",
+        ]
+    ];
+}
+
+// Courses
+if (canView('courses')) {
+    $menu_items['courses'] = [
+        'name'=>'Courses', 'icon'=>'ri-book-open-line', 'link'=>"$B/admin/course/courses.php",
         'submenu'=>[
             ['name'=>'All Courses',   'link'=>"$B/admin/course/courses.php"],
             ['name'=>'Add Course',    'link'=>"$B/admin/course/add_course.php"],
             ['name'=>'Batch Courses', 'link'=>"$B/admin/batch/course/batch_courses.php"],
             ['name'=>'Assign Course', 'link'=>"$B/admin/batch/course/assign_course.php"],
-        ]],
-    'schedule'    => ['name'=>'Schedule',       'icon'=>'ri-calendar-line',     'link'=>"$B/admin/schedule/schedule.php",
+        ]
+    ];
+}
+
+// Schedule
+if (canView('schedule')) {
+    $menu_items['schedule'] = [
+        'name'=>'Schedule', 'icon'=>'ri-calendar-line', 'link'=>"$B/admin/schedule/schedule.php",
         'submenu'=>[
             ['name'=>'All Schedules', 'link'=>"$B/admin/schedule/schedule.php"],
             ['name'=>'Add Schedule',  'link'=>"$B/admin/schedule/add_schedule.php"],
-        ]],
-    'attendance'  => ['name'=>'Attendance',     'icon'=>'ri-checkbox-line',     'link'=>"$B/admin/attendance/attendance.php",
+        ]
+    ];
+}
+
+// Attendance
+if (canView('attendance')) {
+    $menu_items['attendance'] = [
+        'name'=>'Attendance', 'icon'=>'ri-checkbox-line', 'link'=>"$B/admin/attendance/attendance.php",
         'submenu'=>[
             ['name'=>'Mark Attendance', 'link'=>"$B/admin/attendance/attendance.php"],
             ['name'=>'View Records',    'link'=>"$B/admin/attendance/view_attendance.php"],
-        ]],
-    'notes'       => ['name'=>'Notes',          'icon'=>'ri-file-text-line',    'link'=>"$B/admin/notes/notes.php"],
-    'assignments' => ['name'=>'Assignments',    'icon'=>'ri-task-line',          'link'=>"$B/admin/assignments/assignments.php"],
-    'tests'       => ['name'=>'Tests',          'icon'=>'ri-questionnaire-line', 'link'=>"$B/admin/tests/test.php"],
-    'exams'       => ['name'=>'Exams',          'icon'=>'ri-file-copy-line',     'link'=>"$B/admin/exams/exams.php"],
-    'payments'    => ['name'=>'Payments',       'icon'=>'ri-bank-card-line',     'link'=>"$B/admin/payments/payments.php"],
-    'users'       => ['name'=>'Users',          'icon'=>'ri-user-settings-line', 'link'=>"$B/admin/users/admins.php",
-        'submenu'=>[
-            ['name'=>'Admins',   'link'=>"$B/admin/users/admins.php"],
-            ['name'=>'Trainers', 'link'=>"$B/admin/users/trainers.php"],
-            ['name'=>'Sales',    'link'=>"$B/admin/users/sales.php"],
-            ['name'=>'Accounts', 'link'=>"$B/admin/users/accounts.php"],
-        ]],
-    'notifications'=>['name'=>'Notifications', 'icon'=>'ri-notification-line',  'link'=>"$B/admin/notifications/notifications.php"],
-    'settings'    => ['name'=>'Settings',       'icon'=>'ri-settings-line',      'link'=>"$B/admin/settings/settings.php"],
-];
+        ]
+    ];
+}
 
+// Notes
+if (canView('notes')) {
+    $menu_items['notes'] = [
+        'name'=>'Notes', 'icon'=>'ri-file-text-line', 'link'=>"$B/admin/notes/notes.php",
+        'submenu'=>[
+            ['name'=>'All Notes', 'link'=>"$B/admin/notes/notes.php"],
+            ['name'=>'Add Note',  'link'=>"$B/admin/notes/add_note.php"],
+        ]
+    ];
+}
+
+// Assignments
+if (canView('assignments')) {
+    $menu_items['assignments'] = [
+        'name'=>'Assignments', 'icon'=>'ri-task-line', 'link'=>"$B/admin/assignments/assignments.php",
+        'submenu'=>[
+            ['name'=>'All Assignments', 'link'=>"$B/admin/assignments/assignments.php"],
+            ['name'=>'Add Assignment',  'link'=>"$B/admin/assignments/add_assignment.php"],
+        ]
+    ];
+}
+
+// Tests
+if (canView('tests')) {
+    $menu_items['tests'] = [
+        'name'=>'Tests', 'icon'=>'ri-questionnaire-line', 'link'=>"$B/admin/tests/test.php",
+        'submenu'=>[
+            ['name'=>'All Tests',    'link'=>"$B/admin/tests/test.php"],
+            ['name'=>'Create Test',  'link'=>"$B/admin/tests/create_test.php"],
+        ]
+    ];
+}
+
+// Exams
+if (canView('exams')) {
+    $menu_items['exams'] = [
+        'name'=>'Exams', 'icon'=>'ri-file-copy-line', 'link'=>"$B/admin/exams/exams.php",
+        'submenu'=>[
+            ['name'=>'All Exams',    'link'=>"$B/admin/exams/exams.php"],
+            ['name'=>'Create Exam',  'link'=>"$B/admin/exams/create_exam.php"],
+        ]
+    ];
+}
+
+// Payments
+if (canView('payments')) {
+    $menu_items['payments'] = ['name'=>'Payments', 'icon'=>'ri-bank-card-line', 'link'=>"$B/admin/payments/payments.php"];
+}
+
+// Users (Unified user management)
+if (canView('users')) {
+    $menu_items['users'] = [
+        'name'=>'Users', 'icon'=>'ri-user-settings-line', 'link'=>"$B/admin/users/users.php",
+        'submenu'=>[
+            ['name'=>'All Users',  'link'=>"$B/admin/users/users.php"],
+            ['name'=>'Add User',   'link'=>"$B/admin/users/add_user.php"],
+        ]
+    ];
+}
+
+// Notifications
+if (canView('notifications')) {
+    $menu_items['notifications'] = ['name'=>'Notifications', 'icon'=>'ri-notification-line', 'link'=>"$B/admin/notifications/notifications.php"];
+}
+
+// Settings
+if (canView('settings')) {
+    $menu_items['settings'] = [
+        'name'=>'Settings', 'icon'=>'ri-settings-line', 'link'=>"$B/admin/settings/settings.php",
+        'submenu'=>[
+            ['name'=>'System Settings', 'link'=>"$B/admin/settings/settings.php"],
+            ['name'=>'Access Control',  'link'=>"$B/admin/settings/access.php"],
+        ]
+    ];
+}
+
+// Collapse state
 $sidebar_collapsed = isset($_COOKIE['sidebar_collapsed']) && $_COOKIE['sidebar_collapsed'] === 'true';
 $sc = $sidebar_collapsed ? 'collapsed' : '';
 $pw = $sidebar_collapsed ? 'expanded'  : '';
@@ -96,6 +192,7 @@ $pw = $sidebar_collapsed ? 'expanded'  : '';
 <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
 <?= isset($extra_head) ? $extra_head : '' ?>
 <style>
+/* (Same CSS as before – unchanged) */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{display:flex;min-height:100vh;background:#F5F7FA;font-family:'Inter',sans-serif}
